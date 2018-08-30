@@ -15,7 +15,7 @@ def draw_last_two_hour():
     CURSOR = MARIADB_CONNECTION.cursor()
     CURSOR.execute("SELECT gateway, country_code, country, high_rate, percent, affected_messages, "
                    "total_messages FROM alarmas_infracast WHERE date BETWEEN  "
-                   "%s AND %s",('2018-08-29 01:00:00', '2018-08-29 17:00:00'))
+                   "%s AND %s",('2018-08-30 01:00:00', '2018-08-30 17:00:00'))
 
     for row in CURSOR:
         list_result_query.append(row)
@@ -31,9 +31,279 @@ def draw_last_two_hour():
     draw_enroute_rate(list_result_enroute_rate)
 
 
-def draw_failure_rate(list_result_failure_rate):
-    ig0, ax0 = plt.subplots()
 
+def draw_failure_rate(list_result_failure_rate):
+    check_total_countrys = True
+    check_axis = True
+    check_count = 0
+    #ig0, ax0 = plt.subplots(num=None, figsize=(12, 10), dpi=80, facecolor='w', edgecolor='k')
+    #ig0.canvas.set_window_title('HIGH FAILURE RATE')
+    number_country_code_34 = 0
+    number_country_code_44 = 0
+
+    for row in list_result_failure_rate:
+        for country_code in row:
+            if country_code == row[1] and country_code == 34:
+                number_country_code_34 = number_country_code_34 + 1
+
+    for row in list_result_failure_rate:
+        for country_code in row:
+            if country_code == row[1] and country_code == 44:
+                number_country_code_44 = number_country_code_44 + 1
+
+    print(number_country_code_34)
+
+    for row in list_result_failure_rate:
+        for country_code in row:
+            if country_code == row[1] and country_code == 34:
+                check_count = check_count + 1
+                if check_total_countrys == True:
+                    country = row[2]
+                    print(country)
+                    country =  country + ", Gateway: " + str(row[0])
+                    fig, ax1 = plt.subplots(num=None, figsize=(12, 10), dpi=80, facecolor='w', edgecolor='k')
+                    fig.canvas.set_window_title('HIGH FAILURE RATE: ' + country)
+                    color = 'tab:red'
+                    ax1.set_xlabel('Differents values')
+                    ax1.set_ylabel('Percent failure rate', color=color)
+                    ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+                    color = 'tab:blue'
+                    ax2.set_ylabel('Affected messages and Total messages',
+                                   color=color)  # we already handled the x-label with ax1
+                    max_total_messages = 0
+                    total_countrys = 0
+                    x_axis = 0
+                    x_axis_2 = 0
+                    x_axis_3 = 0
+                    total_countrys = total_countrys + 2
+                    check_total_countrys = False
+                print(country_code)
+                # print(row[4])
+                percent = row[4]
+                affected_messages = row[5]
+                total_messages = row[6]
+                if max_total_messages < row[6]:
+                    max_total_messages = row[6]
+                if check_axis == True:
+                    x_axis = x_axis + 0.5
+                    x_axis_2 = x_axis + 0.5
+                    x_axis_3 = x_axis_2 + 0.5
+                    check_axis = False
+                ax1.plot(x_axis, percent, 'ro')
+                ax2.plot(x_axis_2, affected_messages, 'bs', color='blue')
+                ax2.plot(x_axis_3, total_messages, 'g^', color='green')
+
+                if check_count == number_country_code_34:
+
+                    plt.text(x_axis, -5, "Percent Failure", size=14, rotation=0.,
+                             ha="center", va="bottom",
+                             bbox=dict(boxstyle="round",
+                                       ec=(1., 1, 1),
+                                       fc=(1., 1, 1),
+                                       )
+                             )
+                    plt.text(x_axis_2, -5, "Affected Messages", size=14, rotation=0.,
+                             ha="center", va="bottom",
+                             bbox=dict(boxstyle="round",
+                                       ec=(1., 1., 1.0),
+                                       fc=(1., 1.0, 1.0),
+                                       )
+                             )
+                    plt.text(x_axis_3, -5, "Total Messages", size=14, rotation=0.,
+                             ha="center", va="bottom",
+                             bbox=dict(boxstyle="round",
+                                       ec=(1., 1.0, 1.0),
+                                       fc=(1., 1.0, 1.0),
+                                       )
+                             )
+
+                    check_axis = True
+                    check_total_countrys = True
+                    print("ultimoooooooooooooooooooooooooo")
+                    ax1.axis((0, total_countrys, 0, 100))
+                    color = 'tab:red'
+                    ax1.tick_params(axis='y', labelcolor=color)
+
+                    max_total_messages = max_total_messages
+                    ax2.axis((0, total_countrys, 0, max_total_messages + 100))
+                    color = 'tab:green'
+                    ax2.tick_params(axis='y', labelcolor=color)
+
+                    fig.tight_layout()  # otherwise the right y-label is slightly clipped
+                    plt.margins(10.9)
+                    #plt.show()
+
+            '''
+            if country_code == row[1] and country_code == 34:
+                if check_total_countrys == True:
+                    country = row[2]
+                    print(country)
+                    country = country + ", Gateway: " + str(row[0])
+                    fig, ax1 = plt.subplots(num=None, figsize=(12, 10), dpi=80, facecolor='w', edgecolor='k')
+                    fig.canvas.set_window_title('HIGH FAILURE RATE: ' + country)
+                    color = 'tab:red'
+                    ax1.set_xlabel('time (s)')
+                    ax1.set_ylabel('Percent failure rate', color=color)
+                    ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+                    color = 'tab:blue'
+                    ax2.set_ylabel('Affected messages and Total messages',
+                                   color=color)  # we already handled the x-label with ax1
+                    max_total_messages = 0
+                    total_countrys = 0
+                    x_axis = 0
+                    x_axis_2 = 0
+                    x_axis_3 = 0
+                    total_countrys = total_countrys + 2
+                    check_total_countrys = False
+                print(country_code)
+                # print(row[4])
+                percent = row[4]
+                affected_messages = row[5]
+                total_messages = row[6]
+                if max_total_messages < row[6]:
+                    max_total_messages = row[6]
+                if check_axis == True:
+                    x_axis = x_axis + 0.5
+                    x_axis_2 = x_axis + 0.5
+                    x_axis_3 = x_axis_2 + 0.5
+                    check_axis = False
+                ax1.plot(x_axis, percent, 'ro')
+                ax2.plot(x_axis_2, affected_messages, 'bs', color='blue')
+                ax2.plot(x_axis_3, total_messages, 'g^', color='green')
+                plt.text(x_axis, -425.0, "Percent\nFailure", size=14, rotation=0.,
+                         ha="center", va="bottom",
+                         bbox=dict(boxstyle="round",
+                                   ec=(1., 0.9, 0.9),
+                                   fc=(1., 0.9, 0.9),
+                                   )
+                         )
+                plt.text(x_axis_2, -425.0, "Affected\nMessages", size=14, rotation=0.,
+                         ha="center", va="bottom",
+                         bbox=dict(boxstyle="round",
+                                   ec=(1., 0.9, 0.9),
+                                   fc=(1., 0.9, 0.9),
+                                   )
+                         )
+                plt.text(x_axis_3, -425.0, "Total\nMessages", size=14, rotation=0.,
+                         ha="center", va="bottom",
+                         bbox=dict(boxstyle="round",
+                                   ec=(1., 0.9, 0.9),
+                                   fc=(1., 0.9, 0.9),
+                                   )
+                         )
+
+            if country_code == row[1] and country_code == 34:
+                if check_total_countrys == True:
+                    total_countrys = total_countrys + 200
+                    print (total_countrys)
+                    check_total_countrys = False
+                print(country_code)
+                # print(row[4])
+                percent = row[4]
+                affected_messages = row[5]
+                total_messages = row[6]
+                if max_total_messages < row[6]:
+                    max_total_messages = row[6]
+                country = row[2]
+                print(country)
+                country = " ------------------------------------------------- " + country + " Gateway: " + str(row[0]) + \
+                          " ------------------------------------------------- "
+                if check_axis == True:
+                    x_axis = x_axis + 50
+                    x_axis_2 = x_axis + 50
+                    x_axis_3 = x_axis_2 + 50
+                    check_axis = False
+                ax1.plot(x_axis, percent, 'ro')
+                ax2.plot(x_axis_2, affected_messages, 'bs', color='blue')
+                ax2.plot(x_axis_3, total_messages, 'g^', color='green')
+                plt.text(x_axis, -205.0, "Percent\nFailure", size=8, rotation=0.,
+                         ha="center", va="bottom",
+                         bbox=dict(boxstyle="round",
+                                   ec=(1., 0.5, 0.5),
+                                   fc=(1., 0.8, 0.8),
+                                   )
+                         )
+                plt.text(x_axis_2, -205.0, "Failure\nRate", size=8, rotation=0.,
+                         ha="center", va="bottom",
+                         bbox=dict(boxstyle="round",
+                                   ec=(1., 0.5, 0.5),
+                                   fc=(1., 0.8, 0.8),
+                                   )
+                         )
+                plt.text(x_axis_3, -205.0, "Total\nMessages", size=8, rotation=0.,
+                         ha="center", va="bottom",
+                         bbox=dict(boxstyle="round",
+                                   ec=(1., 0.5, 0.5),
+                                   fc=(1., 0.8, 0.8),
+                                   )
+                         )
+
+                plt.text(x_axis_2, -410.0, country, fontsize=19, style='oblique', size=8, rotation=0.,
+                         ha="center", va="bottom",
+                         bbox=dict(boxstyle="round",
+                                   ec=(1., 0.5, 0.5),
+                                   fc=(1., 0.8, 0.8),
+                                   )
+                         )
+
+
+
+            if country_code == row[1] and country_code == 44:
+                if check_total_countrys == True:
+                    total_countrys = total_countrys + 200
+                    check_total_countrys = False
+                print(country_code)
+                # print(row[4])
+                percent = row[4]
+                affected_messages = row[5]
+                total_messages = row[6]
+                if max_total_messages < row[6]:
+                    max_total_messages = row[6]
+                country = row[2]
+                print(country)
+                country = " ------------------------------------------------- " + country + " Gateway: " + str(row[0]) + \
+                          " ------------------------------------------------- "
+                if check_axis == True:
+                    x_axis = x_axis + 50
+                    x_axis_2 = x_axis + 50
+                    x_axis_3 = x_axis_2 + 50
+                    check_axis = False
+                ax1.plot(x_axis, percent, 'ro')
+                ax2.plot(x_axis_2, affected_messages, 'bs', color='blue')
+                ax2.plot(x_axis_3, total_messages, 'g^', color='green')
+                plt.text(x_axis, -205.0, "Percent\nFailure", size=8, rotation=0.,
+                         ha="center", va="bottom",
+                         bbox=dict(boxstyle="round",
+                                   ec=(1., 0.5, 0.5),
+                                   fc=(1., 0.8, 0.8),
+                                   )
+                         )
+                plt.text(x_axis_2, -205.0, "Failure\nRate", size=8, rotation=0.,
+                         ha="center", va="bottom",
+                         bbox=dict(boxstyle="round",
+                                   ec=(1., 0.5, 0.5),
+                                   fc=(1., 0.8, 0.8),
+                                   )
+                         )
+                plt.text(x_axis_3, -205.0, "Total\nMessages", size=8, rotation=0.,
+                         ha="center", va="bottom",
+                         bbox=dict(boxstyle="round",
+                                   ec=(1., 0.5, 0.5),
+                                   fc=(1., 0.8, 0.8),
+                                   )
+                         )
+
+                plt.text(x_axis_2, -410.0, country, fontsize=19, style='oblique', size=8, rotation=0.,
+                         ha="center", va="bottom",
+                         bbox=dict(boxstyle="round",
+                                   ec=(1., 0.5, 0.5),
+                                   fc=(1., 0.8, 0.8),
+                                   )
+                         )
+    
+
+
+    
     print(list_result_failure_rate)
 
     for row in list_result_failure_rate:
@@ -64,13 +334,13 @@ def draw_failure_rate(list_result_failure_rate):
                 percent = row[4]
                 affected_messages = row[5]
                 total_messages = row[6]
-                country = row[2]
+                country = row[2] + '\nGateway: ' + str(row[0])
                 print(country)
                 x_axis = 20
                 ax0.plot(x_axis, percent, 'ro')
                 ax0.plot(x_axis, affected_messages, 'bs',color='C1')
                 ax0.plot(x_axis, total_messages, 'g^', color='C2')
-                plt.text(x_axis, -55.0, country, size=8, rotation=0.,
+                plt.text(x_axis, -345.0, country, size=8, rotation=0.,
                          ha="center", va="bottom",
                          bbox=dict(boxstyle="round",
                                    ec=(1., 0.5, 0.5),
@@ -127,7 +397,7 @@ def draw_failure_rate(list_result_failure_rate):
                 affected_messages = row[5]
                 total_messages = row[6]
                 country = row[2]
-                x_axis = 40
+                x_axis = 50
                 ax0.plot(x_axis, percent, 'ro')
                 ax0.plot(x_axis, affected_messages, 'bs', color='C1')
                 ax0.plot(x_axis, total_messages, 'g^', color='C2')
@@ -139,6 +409,27 @@ def draw_failure_rate(list_result_failure_rate):
                                    fc=(1., 0.8, 0.8),
                                    )
                          )
+            elif country_code == row[1] and country_code == 56:
+                print(country_code)
+                # print(row)
+                # print(row[4])
+                percent = row[4]
+                affected_messages = row[5]
+                total_messages = row[6]
+                country = row[2]
+                x_axis = 60
+                ax0.plot(x_axis, percent, 'ro')
+                ax0.plot(x_axis, affected_messages, 'bs', color='C1')
+                ax0.plot(x_axis, total_messages, 'g^', color='C2')
+                print("country ", country)
+                plt.text(x_axis, -55.0, country, size=8, rotation=0.,
+                         ha="center", va="bottom",
+                         bbox=dict(boxstyle="round",
+                                   ec=(1., 0.5, 0.5),
+                                   fc=(1., 0.8, 0.8),
+                                   )
+                         )
+
     l = mlines.Line2D([0, 100], [100, 100], color='red', markersize=10, label='limit percent')
     plt.text(-7, 80.0, "Warning!! \n maxim failure rate", size=6, rotation=0.,
              ha="center", va="bottom",
@@ -148,9 +439,16 @@ def draw_failure_rate(list_result_failure_rate):
                        )
              )
     ax0.add_line(l)
-    ax0.axis((0, 100, 0, 1000))
+    ax0.axis((0, 100, 0, 8000))
       # dotted red
     plt.show()
+
+    '''
+
+
+
+
+
 
     #X, Y = (np.linspace(-10, 3, 100),
     #        np.linspace(-10, 3, 100))
@@ -179,6 +477,184 @@ def f(t):
 
 
 def draw_enroute_rate(list_result_enroute_rate):
+    check_total_countrys = True
+    check_axis = True
+    check_count = 0
+    # ig0, ax0 = plt.subplots(num=None, figsize=(12, 10), dpi=80, facecolor='w', edgecolor='k')
+    # ig0.canvas.set_window_title('HIGH FAILURE RATE')
+    number_country_code_34 = 0
+    number_country_code_33 = 0
+    number_country_code_44 = 0
+
+    for row in list_result_enroute_rate:
+        for country_code in row:
+            if country_code == row[1] and country_code == 34:
+                number_country_code_34 = number_country_code_34 + 1
+
+    for row in list_result_enroute_rate:
+        for country_code in row:
+            if country_code == row[1] and country_code == 44:
+                number_country_code_44 = number_country_code_44 + 1
+
+    for row in list_result_enroute_rate:
+        for country_code in row:
+            if country_code == row[1] and country_code == 33:
+                number_country_code_33 = number_country_code_33 + 1
+
+    print(number_country_code_34)
+
+    for row in list_result_enroute_rate:
+        for country_code in row:
+            if country_code == row[1] and country_code == 44:
+                check_count = check_count + 1
+                if check_total_countrys == True:
+                    country = row[2]
+                    print(country)
+                    country = country + ", Gateway: " + str(row[0])
+                    fig, ax1 = plt.subplots(num=None, figsize=(12, 10), dpi=80, facecolor='w', edgecolor='k')
+                    fig.canvas.set_window_title('HIGH ENROUTE RATE: ' + country)
+                    color = 'tab:red'
+                    ax1.set_xlabel('Differents values')
+                    ax1.set_ylabel('Percent failure rate', color=color)
+                    ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+                    color = 'tab:blue'
+                    ax2.set_ylabel('Affected messages and Total messages',
+                                   color=color)  # we already handled the x-label with ax1
+                    max_total_messages = 0
+                    total_countrys = 0
+                    x_axis = 0
+                    x_axis_2 = 0
+                    x_axis_3 = 0
+                    total_countrys = total_countrys + 2
+                    check_total_countrys = False
+                print(country_code)
+                # print(row[4])
+                percent = row[4]
+                affected_messages = row[5]
+                total_messages = row[6]
+                if max_total_messages < row[6]:
+                    max_total_messages = row[6]
+                if check_axis == True:
+                    x_axis = x_axis + 0.5
+                    x_axis_2 = x_axis + 0.5
+                    x_axis_3 = x_axis_2 + 0.5
+                    check_axis = False
+                ax1.plot(x_axis, percent, 'ro')
+                ax2.plot(x_axis_2, affected_messages, 'bs', color='blue')
+                ax2.plot(x_axis_3, total_messages, 'g^', color='green')
+
+                if check_count == number_country_code_44:
+                    plt.text(x_axis, -5, "Percent Failure", size=14, rotation=0.,
+                             ha="center", va="bottom",
+                             bbox=dict(boxstyle="round",
+                                       ec=(1., 1., 1.),
+                                       fc=(1., 1., 1.),
+                                       )
+                             )
+                    plt.text(x_axis_2, -5, "Affected Messages", size=14, rotation=0.,
+                             ha="center", va="bottom",
+                             bbox=dict(boxstyle="round",
+                                       ec=(1., 1., 1.),
+                                       fc=(1., 1., 1.),
+                                       )
+                             )
+                    plt.text(x_axis_3, -5, "Total Messages", size=14, rotation=0.,
+                             ha="center", va="bottom",
+                             bbox=dict(boxstyle="round",
+                                       ec=(1., 1., 1.),
+                                       fc=(1., 1., 1.),
+                                       )
+                             )
+                    check_axis = True
+                    check_total_countrys = True
+                    print("ultimoooooooooooooooooooooooooo")
+                    ax1.axis((0, total_countrys, 0, 100))
+                    color = 'tab:red'
+                    ax1.tick_params(axis='y', labelcolor=color)
+
+                    max_total_messages = max_total_messages + 200
+                    ax2.axis((0, total_countrys, 0, max_total_messages))
+                    color = 'tab:green'
+                    ax2.tick_params(axis='y', labelcolor=color)
+
+                    fig.tight_layout()  # otherwise the right y-label is slightly clipped
+                    #plt.show()
+
+            if country_code == row[1] and country_code == 33:
+                check_count = check_count + 1
+                if check_total_countrys == True:
+                    country = row[2]
+                    print(country)
+                    country = country + ", Gateway: " + str(row[0])
+                    fig, ax1 = plt.subplots(num=None, figsize=(12, 10), dpi=80, facecolor='w', edgecolor='k')
+                    fig.canvas.set_window_title('HIGH ENROUTE RATE: ' + country)
+                    color = 'tab:red'
+                    ax1.set_xlabel('Differents values')
+                    ax1.set_ylabel('Percent failure rate', color=color)
+                    ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+                    color = 'tab:blue'
+                    ax2.set_ylabel('Affected messages and Total messages',
+                                   color=color)  # we already handled the x-label with ax1
+                    max_total_messages = 0
+                    total_countrys = 0
+                    x_axis = 0
+                    x_axis_2 = 0
+                    x_axis_3 = 0
+                    total_countrys = total_countrys + 2
+                    check_total_countrys = False
+                print(country_code)
+                # print(row[4])
+                percent = row[4]
+                affected_messages = row[5]
+                total_messages = row[6]
+                if max_total_messages < row[6]:
+                    max_total_messages = row[6]
+                if check_axis == True:
+                    x_axis = x_axis + 0.5
+                    x_axis_2 = x_axis + 0.5
+                    x_axis_3 = x_axis_2 + 0.5
+                    check_axis = False
+                ax1.plot(x_axis, percent, 'ro')
+                ax2.plot(x_axis_2, affected_messages, 'bs', color='blue')
+                ax2.plot(x_axis_3, total_messages, 'g^', color='green')
+
+                if check_count == number_country_code_33:
+                    plt.text(x_axis, -5, "Percent Failure", size=14, rotation=0.,
+                             ha="center", va="bottom",
+                             bbox=dict(boxstyle="round",
+                                       ec=(1., 1., 1.),
+                                       fc=(1., 1., 1.),
+                                       )
+                             )
+                    plt.text(x_axis_2, -5, "Affected Messages", size=14, rotation=0.,
+                             ha="center", va="bottom",
+                             bbox=dict(boxstyle="round",
+                                       ec=(1., 1., 1.),
+                                       fc=(1., 1., 1.),
+                                       )
+                             )
+                    plt.text(x_axis_3, -5, "Total Messages", size=14, rotation=0.,
+                             ha="center", va="bottom",
+                             bbox=dict(boxstyle="round",
+                                       ec=(1., 1., 1.),
+                                       fc=(1., 1., 1.),
+                                       )
+                             )
+                    check_axis = True
+                    check_total_countrys = True
+                    print("ultimoooooooooooooooooooooooooo")
+                    ax1.axis((0, total_countrys, 0, 100))
+                    color = 'tab:red'
+                    ax1.tick_params(axis='y', labelcolor=color)
+
+                    max_total_messages = max_total_messages + 200
+                    ax2.axis((0, total_countrys, 0, max_total_messages))
+                    color = 'tab:green'
+                    ax2.tick_params(axis='y', labelcolor=color)
+
+                    fig.tight_layout()  # otherwise the right y-label is slightly clipped
+                    plt.show()
+    '''
     ig0, ax0 = plt.subplots()
 
     for row in list_result_enroute_rate:
@@ -271,7 +747,28 @@ def draw_enroute_rate(list_result_enroute_rate):
                 affected_messages = row[5]
                 total_messages = row[6]
                 country = row[2]
-                x_axis = 40
+                x_axis = 50
+                ax0.plot(x_axis, percent, 'ro')
+                ax0.plot(x_axis, affected_messages, 'bs', color='C1')
+                ax0.plot(x_axis, total_messages, 'g^', color='C2')
+                print("country ", country)
+                plt.text(x_axis, -55.0, country, size=8, rotation=0.,
+                         ha="center", va="bottom",
+                         bbox=dict(boxstyle="round",
+                                   ec=(1., 0.5, 0.5),
+                                   fc=(1., 0.8, 0.8),
+                                   )
+                         )
+
+            elif country_code == row[1] and country_code == 56:
+                print(country_code)
+                # print(row)
+                # print(row[4])
+                percent = row[4]
+                affected_messages = row[5]
+                total_messages = row[6]
+                country = row[2]
+                x_axis = 60
                 ax0.plot(x_axis, percent, 'ro')
                 ax0.plot(x_axis, affected_messages, 'bs', color='C1')
                 ax0.plot(x_axis, total_messages, 'g^', color='C2')
@@ -286,3 +783,4 @@ def draw_enroute_rate(list_result_enroute_rate):
 
     ax0.axis((0, 100, 0, 1100))
     plt.show()
+    '''

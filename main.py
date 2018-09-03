@@ -1,4 +1,5 @@
 from draw_graphics import *
+from test import *
 
 
 def main():

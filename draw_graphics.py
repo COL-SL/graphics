@@ -608,11 +608,11 @@ def draw_failure_rate(list_result_failure_rate):
                 ax2.plot(x1, y1, linewidth=0.4, color=color_ramdom)
 
                 if check_axis_code_505 == False:
-                    ax2.plot(x_axis_2, affected_messages, 'bs', color='blue')
-                    ax2.plot(x_axis_3, total_messages, 'g^', color='green')
+                    ax2.plot(x_axis_2, affected_messages, 'bs', color=color_ramdom)
+                    ax2.plot(x_axis_3, total_messages, 'g^', color=color_ramdom)
                 elif check_axis_code_505 == True:
-                    ax2.plot(x_axis_3, total_messages, 'g^', color='green', label='Total Messages')
-                    ax2.plot(x_axis_2, affected_messages, 'bs', color='blue', label='Affected Messages')
+                    ax2.plot(x_axis_3, total_messages, 'g^', color=color_ramdom, label='Total Messages')
+                    ax2.plot(x_axis_2, affected_messages, 'bs', color=color_ramdom, label='Affected Messages')
                     check_axis_code_505 = False
 
                 if check_country_code_505 == number_country_code_505:
@@ -632,7 +632,7 @@ def draw_failure_rate(list_result_failure_rate):
                             count_points_color = count_points_color + 1
                             print ("ABAJO: ", color_ramdom_down)
                             ax2.plot(x1, y1, linewidth=0.4, color=color_ramdom_down)
-                            ax2.plot(x_axis, point_final_converter, 'ro')
+                            ax2.plot(x_axis, point_final_converter,linewidth=0.4, color=color_ramdom_down)
                         elif check_axis_code_505_percent == True:
                             print ("ABAJO: ", color_ramdom_down)
                             ax2.plot(x_axis, point_final_converter, 'ro', label='Percent Failure')
